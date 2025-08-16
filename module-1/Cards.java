@@ -12,7 +12,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -22,7 +21,7 @@ public class Cards extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Load all card images from the "cards" subdirectory
+        // Load all card images from the cards subdirectory
         cards = new ArrayList<>();
         for (int i = 1; i <= 52; i++) {
             Image image = new Image(getClass().getResource("/cards/" + i + ".png").toExternalForm());
@@ -53,16 +52,14 @@ public class Cards extends Application {
 
     // Display 4 random cards
     private void displayRandomCards() {
-        hBox.getChildren().clear();
-
-        // Shuffle the cards and take the first 4
         Collections.shuffle(cards);
-        for (int i = 0; i < 4; i++) {
-            ImageView viewCard = new ImageView(cards.get(i));
+        hBox.getChildren().clear();
+        cards.stream().limit(4).forEach(card -> {
+            ImageView viewCard = new ImageView(card);
             viewCard.setFitWidth(80);
             viewCard.setPreserveRatio(true);
             hBox.getChildren().add(viewCard);
-        }
+        });
     }
 
     public static void main(String[] args) {
