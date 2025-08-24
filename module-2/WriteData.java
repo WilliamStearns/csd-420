@@ -19,18 +19,18 @@ public class WriteData {
             arr2[i] = random.nextDouble();   // random doubles
         }
 
-        try (PrintWriter writer = new PrintWriter(new FileWriter("[stearns]datafile.dat", true))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("stearnsdatafile.dat", true))) {
             // Write integer array
             for (int i : arr) {
                 writer.print(i + " ");
             }
-            writer.println();
+            writer.println('\n');
 
             // Write double array
             for (double d : arr2) {
                 writer.print(d + " ");
             }
-            writer.println(); // empty line to separate entries
+            writer.println('\n'); // empty line to separate entries
 
             System.out.println("Arrays written successfully.");
         } catch (IOException e) {

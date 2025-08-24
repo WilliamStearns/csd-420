@@ -8,7 +8,7 @@ import java.io.*;
 
 public class ReadData {
     public static void main(String[] args) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("[stearns]datafile.dat"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("stearnsdatafile.dat"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
