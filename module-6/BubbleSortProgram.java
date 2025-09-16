@@ -60,8 +60,8 @@ public class BubbleSortProgram {
     }
 
     public static void main(String[] args) {
-        // --- Test with Comparable (Natural Order) ---
-        System.out.println("--- Testing with Comparable (Natural Order) ---");
+        // --- Test with Comparable ---
+        System.out.println("--- Testing with Comparable ---");
         Integer[] numbers = {4, 1, 9, 2, 7};
         System.out.println("Original array: " + Arrays.toString(numbers));
         BubbleSortProgram.bubbleSort(numbers);
@@ -69,12 +69,12 @@ public class BubbleSortProgram {
 
         System.out.println();
 
-        // --- Test with Comparator (Custom Order) ---
-        System.out.println("--- Testing with Comparator (Custom Order) ---");
-        String[] words = {"banana", "apple", "cherry", "date"};
+        // --- Test with Comparator  ---
+        System.out.println("--- Testing with Comparator ---");
+        String[] words = {"Artpop", "Chromatica", "Joanne", "Mayhem"};
         System.out.println("Original array: " + Arrays.toString(words));
         BubbleSortProgram.bubbleSort(words, Comparator.reverseOrder());
-        System.out.println("Sorted array:   " + Arrays.toString(words)); // [date, cherry, banana, apple]
+        System.out.println("Sorted array:   " + Arrays.toString(words)); // [Mayhem, Joanne, Chromatica, Artpop]
 
         System.out.println();
 
