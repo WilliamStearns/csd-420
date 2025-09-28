@@ -1,0 +1,26 @@
+/* Define a class for a plain circle with a white fill and black stroke */
+.plaincircle {
+    -fx-fill: white;
+    -fx-stroke: black;
+    -fx-stroke-width: 1.5;
+}
+
+/* Define an ID for a circle with a red fill and NO stroke */
+#redcircle {
+    -fx-fill: red;
+    -fx-stroke: transparent; /* This overrides the black stroke from .plaincircle */
+}
+
+/* Define an ID for a circle with a green fill and NO stroke */
+#greencircle {
+    -fx-fill: green;
+    -fx-stroke: transparent; /* This overrides the black stroke from .plaincircle */
+}
+
+/* Define a style class for the rectangle */
+.bordered-rect {
+    -fx-fill: white;
+    -fx-stroke: black;
+    -fx-stroke-width: 1.5;
+}
+
