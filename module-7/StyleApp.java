@@ -23,7 +23,7 @@ public class StyleApp extends Application {
         Scene scene = new Scene(pane, 450, 200);
         scene.getStylesheets().add(getClass().getResource("mystyle.css").toExternalForm());
 
-        primaryStage.setTitle("Exercise31_01"); // Set the stage title from the image
+        primaryStage.setTitle("Style App"); // Set the stage title from the image
         primaryStage.setScene(scene); // Place the scene in the stage
         primaryStage.show(); // Display the stage
     }
