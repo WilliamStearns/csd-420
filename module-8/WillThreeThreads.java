@@ -1,97 +1,118 @@
-/* William Stearns
+/* Will Stearns
    9-28-25
    CSD-420 Module 8
-   This program allows for three threads to run at once with included testing.
+   This program demonstrates three threads generating characters with live counters and internal testing.
 */
 
 import javax.swing.*;
 import java.awt.*;
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
-/**
- * This class demonstrates the use of three separate threads to generate and display
- * different types of characters into a single JTextArea.
- * Thread 1: Generates random lowercase letters.
- * Thread 2: Generates random numbers (0-9).
- * Thread 3: Generates random special characters (!, @, #, $, %, &, *).
- *
- * This file also includes an inner class for self-testing the character generation logic.
- */
 public class WillThreeThreads extends JFrame {
 
     private final JTextArea displayArea;
+    private final JLabel letterCountLabel;
+    private final JLabel numberCountLabel;
+    private final JLabel symbolCountLabel;
+    private final JLabel summaryLabel;
+
     private static final int MIN_CHARACTERS = 10000;
     private static final Random random = new SecureRandom();
 
-    /**
-     * Constructs the main application window and initializes components.
-     */
-    public WillThreeThreads() {
-        super("Will's Three Threads");
+    private int letterCount = 0;
+    private int numberCount = 0;
+    private int symbolCount = 0;
 
-        // Set up the text area for display
+    public WillThreeThreads() {
+        super("Will's Three Threads with Counters and Summary");
+
+        // Text area for output
         displayArea = new JTextArea();
         displayArea.setEditable(false);
         displayArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane scrollPane = new JScrollPane(displayArea);
 
-        // Set up the main window
+        // Labels for live counts
+        letterCountLabel = new JLabel("Letters: 0");
+        numberCountLabel = new JLabel("Numbers: 0");
+        symbolCountLabel = new JLabel("Symbols: 0");
+        summaryLabel = new JLabel("Summary: Waiting for threads to finish...");
+
+        JPanel counterPanel = new JPanel();
+        counterPanel.add(letterCountLabel);
+        counterPanel.add(numberCountLabel);
+        counterPanel.add(symbolCountLabel);
+        counterPanel.add(summaryLabel);
+
+        // Layout
+        add(counterPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
-        setSize(800, 600);
+        setSize(900, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the frame
+        setLocationRelativeTo(null);
     }
 
-    /**
-     * Starts the three character-generating threads.
-     */
     public void startThreads() {
-        // Create runnable tasks for each character type
-        Runnable letterGenerator = createCharacterGenerator("abcdefghijklmnopqrstuvwxyz");
-        Runnable numberGenerator = createCharacterGenerator("0123456789");
-        Runnable specialCharGenerator = createCharacterGenerator("!@#$%&*");
+        CountDownLatch latch = new CountDownLatch(3); // Wait for 3 threads
 
-        // Create and start a thread for each task
-        Thread letterThread = new Thread(letterGenerator);
-        Thread numberThread = new Thread(numberGenerator);
-        Thread specialCharThread = new Thread(specialCharGenerator);
+        Runnable letterGenerator = createCharacterGenerator("abcdefghijklmnopqrstuvwxyz", "letter", latch);
+        Runnable numberGenerator = createCharacterGenerator("0123456789", "number", latch);
+        Runnable symbolGenerator = createCharacterGenerator("!@#$%&*", "symbol", latch);
 
-        letterThread.start();
-        numberThread.start();
-        specialCharThread.start();
+        new Thread(letterGenerator).start();
+        new Thread(numberGenerator).start();
+        new Thread(symbolGenerator).start();
+
+        // Thread to display final summary after all threads finish
+        new Thread(() -> {
+            try {
+                latch.await(); // Wait for all threads
+                SwingUtilities.invokeLater(() -> summaryLabel.setText(
+                        "Summary: Letters=" + letterCount +
+                        ", Numbers=" + numberCount +
+                        ", Symbols=" + symbolCount
+                ));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 
-    /**
-     * A factory method to create a Runnable that generates random characters.
-     *
-     * @param charSet The string of characters to choose from.
-     * @return A Runnable task that, when executed, will generate and display characters.
-     */
-    private Runnable createCharacterGenerator(final String charSet) {
+    private Runnable createCharacterGenerator(final String charSet, final String type, final CountDownLatch latch) {
         return () -> {
             for (int i = 0; i < MIN_CHARACTERS; i++) {
-                // Get a random character from the character set
                 char randomChar = charSet.charAt(random.nextInt(charSet.length()));
+                SwingUtilities.invokeLater(() -> {
+                    displayArea.append(String.valueOf(randomChar));
+                    switch (type) {
+                        case "letter" -> {
+                            letterCount++;
+                            letterCountLabel.setText("Letters: " + letterCount);
+                        }
+                        case "number" -> {
+                            numberCount++;
+                            numberCountLabel.setText("Numbers: " + numberCount);
+                        }
+                        case "symbol" -> {
+                            symbolCount++;
+                            symbolCountLabel.setText("Symbols: " + symbolCount);
+                        }
+                    }
+                });
 
-                // Safely update the GUI from a worker thread
-                SwingUtilities.invokeLater(() -> displayArea.append(String.valueOf(randomChar)));
-
-                // A small delay to make the character generation visible in real-time
                 try {
-                    Thread.sleep(1); // sleep for 1 millisecond
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    // Restore the interrupted status
                     Thread.currentThread().interrupt();
-                    System.err.println("Thread interrupted: " + e.getMessage());
                 }
             }
+            latch.countDown(); // Signal completion
         };
     }
 
-    /**
-     * A static nested class to contain testing logic for character generation.
-     */
+    // Nested class for internal testing
     public static class CharacterGeneratorTests {
         private static final int TEST_CHAR_COUNT = 10000;
         private static final Random testRandom = new Random();
@@ -106,7 +127,6 @@ public class WillThreeThreads extends JFrame {
         }
 
         public void testLetterGeneration() {
-            System.out.println("Testing letter generation...");
             String letters = "abcdefghijklmnopqrstuvwxyz";
             String result = generateTestCharacters(letters);
             assert result.length() == TEST_CHAR_COUNT : "Letter test: Incorrect length";
@@ -117,7 +137,6 @@ public class WillThreeThreads extends JFrame {
         }
 
         public void testNumberGeneration() {
-            System.out.println("Testing number generation...");
             String numbers = "0123456789";
             String result = generateTestCharacters(numbers);
             assert result.length() == TEST_CHAR_COUNT : "Number test: Incorrect length";
@@ -128,7 +147,6 @@ public class WillThreeThreads extends JFrame {
         }
 
         public void testSpecialCharacterGeneration() {
-            System.out.println("Testing special character generation...");
             String specialChars = "!@#$%&*";
             String result = generateTestCharacters(specialChars);
             assert result.length() == TEST_CHAR_COUNT : "Special char test: Incorrect length";
@@ -147,19 +165,12 @@ public class WillThreeThreads extends JFrame {
         }
     }
 
-
-    /**
-     * The main entry point for the application.
-     *
-     * @param args Command line arguments. If "test" is passed, it runs tests and exits.
-     */
     public static void main(String[] args) {
-        // Check if the first argument is "test" to run tests
+        // Run tests if "test" argument is passed
         if (args.length > 0 && "test".equalsIgnoreCase(args[0])) {
             CharacterGeneratorTests tester = new CharacterGeneratorTests();
             tester.runAllTests();
         } else {
-            // If not testing, run the GUI application
             SwingUtilities.invokeLater(() -> {
                 WillThreeThreads app = new WillThreeThreads();
                 app.setVisible(true);
@@ -168,4 +179,3 @@ public class WillThreeThreads extends JFrame {
         }
     }
 }
-
